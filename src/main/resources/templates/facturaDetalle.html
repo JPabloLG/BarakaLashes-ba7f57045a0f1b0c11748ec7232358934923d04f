@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factura - BarakaLashes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .success-message {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: slideDown 0.5s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            animation: scaleIn 0.5s ease 0.2s both;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .success-icon i {
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        .success-message h2 {
+            color: #28a745;
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+        }
+
+        .success-message p {
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+
+        .factura-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .factura-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .company-info h1 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .company-info p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .factura-number {
+            text-align: right;
+        }
+
+        .factura-number h3 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .factura-number p {
+            opacity: 0.9;
+        }
+
+        .factura-content {
+            padding: 35px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 35px;
+            padding-bottom: 25px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-box h3 {
+            color: #667eea;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .info-box p {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 1rem;
+        }
+
+        .info-box p strong {
+            color: #555;
+            font-weight: 600;
+        }
+
+        .servicios-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: #667eea;
+        }
+
+        .servicios-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+        }
+
+        .servicios-table thead {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+        }
+
+        .servicios-table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .servicios-table td {
+            padding: 15px;
+            border-bottom: 1px solid #dee2e6;
+            color: #555;
+        }
+
+        .servicios-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .totales-section {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 25px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            font-size: 1.1rem;
+            color: #555;
+        }
+
+        .total-row.final {
+            border-top: 2px solid #667eea;
+            margin-top: 15px;
+            padding-top: 20px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .footer-note {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.9rem;
+            border-left: 4px solid #667eea;
+        }
+
+        .footer-note i {
+            color: #667eea;
+            margin-right: 8px;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .success-message,
+            .actions,
+            .footer-note {
+                display: none;
+            }
+            .container {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .factura-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .factura-number {
+                text-align: center;
+            }
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            .factura-content {
+                padding: 20px;
+            }
+            .servicios-table {
+                font-size: 0.9rem;
+            }
+            .servicios-table th,
+            .servicios-table td {
+                padding: 10px 8px;
+            }
+            .actions {
+                flex-direction: column;
+            }
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Mensaje de Éxito -->
+    <div class="success-message">
+        <div class="success-icon">
+            <i class="fas fa-check"></i>
+        </div>
+        <h2>¡Pago Exitoso!</h2>
+        <p>Tu transacción ha sido procesada correctamente</p>
+    </div>
+
+    <!-- Factura -->
+    <div class="factura-container">
+        <div class="factura-header">
+            <div class="company-info">
+                <h1><i class="fas fa-spa"></i> BarakaLashes</h1>
+                <p>Centro de Belleza y Estética</p>
+                <p>Armenia, Quindío, Colombia</p>
+            </div>
+            <div class="factura-number">
+                <h3>FACTURA</h3>
+                <p>No. <span th:text="${factura.idFactura}">0000</span></p>
+                <p th:text="${factura.fechaFormateada}">Fecha</p>
+            </div>
+        </div>
+
+        <div class="factura-content">
+            <!-- Información del Cliente y Factura -->
+            <div class="info-grid">
+                <div class="info-box">
+                    <h3><i class="fas fa-user"></i> Información del Cliente</h3>
+                    <p><strong>Nombre:</strong> <span th:text="${factura.nombreUsuario}">Cliente</span></p>
+                    <p><strong>Email:</strong> <span th:text="${factura.emailUsuario}">email@example.com</span></p>
+                    <p><strong>ID Cliente:</strong> <span th:text="${factura.idUsuario}">000</span></p>
+                </div>
+
+                <div class="info-box">
+                    <h3><i class="fas fa-file-invoice"></i> Detalles de Factura</h3>
+                    <p><strong>Factura No.:</strong> <span th:text="${factura.idFactura}">0000</span></p>
+                    <p><strong>Fecha:</strong> <span th:text="${factura.fechaFormateada}">00/00/0000</span></p>
+                    <p><strong>Método de Pago:</strong> Tarjeta de Crédito</p>
+                </div>
+            </div>
+
+            <!-- Atendido por -->
+            <div class="info-box" style="margin-bottom: 30px;" th:if="${factura.nombresEmpleados != null && !factura.nombresEmpleados.isEmpty()}">
+                <h3><i class="fas fa-user-tie"></i> Atendido por</h3>
+                <p th:text="${#strings.listJoin(factura.nombresEmpleados, ', ')}">Empleados</p>
+            </div>
+
+            <!-- Servicios -->
+            <div class="servicios-section">
+                <h2 class="section-title">
+                    <i class="fas fa-list"></i>
+                    Servicios Realizados
+                </h2>
+
+                <table class="servicios-table">
+                    <thead>
+                    <tr>
+                        <th>Descripción</th>
+                        <th class="text-right">Precio</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="servicio : ${factura.servicios}">
+                        <td>
+                            <strong th:text="${servicio}">Servicio</strong>
+                        </td>
+                        <td th:text="${#numbers.formatCurrency(precios[servicio])}"></td>
+                        $0.00
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Totales -->
+            <div class="totales-section">
+                <div class="total-row">
+                    <span>Subtotal:</span>
+                    <span th:text="${factura.subtotalFormateado}">$0.00</span>
+                </div>
+                <div class="total-row">
+                    <span>IVA (19%):</span>
+                    <span th:text="${factura.ivaFormateado}">$0.00</span>
+                </div>
+                <div class="total-row final">
+                    <span>TOTAL:</span>
+                    <span th:text="${factura.totalFormateado}">$0.00</span>
+                </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="actions">
+                <button onclick="window.print()" class="btn btn-primary">
+                    <i class="fas fa-print"></i>
+                    Imprimir Factura
+                </button>
+                <a th:href="@{/facturacion/historial}" class="btn btn-success">
+                    <i class="fas fa-history"></i>
+                    Ver Historial
+                </a>
+                <a th:href="@{/citas/historial}" class="btn btn-secondary">
+                    <i class="fas fa-calendar"></i>
+                    Mis Citas
+                </a>
+            </div>
+
+            <!-- Nota al pie -->
+            <div class="footer-note">
+                <i class="fas fa-info-circle"></i>
+                <strong>Nota:</strong> Esta es una factura electrónica válida.
+                Gracias por confiar en BarakaLashes para tu cuidado personal.
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

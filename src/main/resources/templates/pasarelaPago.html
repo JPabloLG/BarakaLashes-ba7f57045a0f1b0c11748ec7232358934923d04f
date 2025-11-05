@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pasarela de Pago - BarakaLashes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .payment-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .payment-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .payment-header i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .payment-content {
+            padding: 35px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: #667eea;
+        }
+
+        .cita-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .info-value {
+            color: #333;
+        }
+
+        .servicios-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .servicio-badge {
+            background: #e9ecef;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            color: #495057;
+        }
+
+        .total-section {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            font-size: 1.1rem;
+        }
+
+        .total-row.final {
+            border-top: 2px solid #667eea;
+            margin-top: 10px;
+            padding-top: 15px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .payment-method {
+            position: relative;
+        }
+
+        .payment-method input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .payment-method label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            height: 100%;
+        }
+
+        .payment-method input[type="radio"]:checked + label {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .payment-method label i {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .payment-method label span {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .card-details {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .card-details.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .card-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .security-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            background: #d1ecf1;
+            border-left: 4px solid #0c5460;
+            border-radius: 5px;
+            color: #0c5460;
+            margin-top: 20px;
+        }
+
+        .security-info i {
+            font-size: 1.5rem;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            .header h1 {
+                font-size: 2rem;
+            }
+            .payment-content {
+                padding: 20px;
+            }
+            .card-row {
+                grid-template-columns: 1fr;
+            }
+            .payment-methods {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1><i class="fas fa-credit-card"></i> Pasarela de Pago</h1>
+        <p>Completa tu reserva de forma segura</p>
+    </div>
+
+    <div class="payment-container">
+        <div class="payment-header">
+            <i class="fas fa-shield-alt"></i>
+            <h2>Pago Seguro - BarakaLashes</h2>
+        </div>
+
+        <div class="payment-content">
+            <div th:if="${error}" class="alert alert-error">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span th:text="${error}"></span>
+            </div>
+
+            <!-- Resumen de la Cita -->
+            <div class="section">
+                <h3 class="section-title">
+                    <i class="fas fa-calendar-check"></i>
+                    Resumen de tu Cita
+                </h3>
+
+                <div class="cita-info">
+                    <div class="info-row">
+                        <span class="info-label">Motivo:</span>
+                        <span class="info-value" th:text="${cita.nombreCita}">Nombre cita</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Fecha y Hora:</span>
+                        <span class="info-value" th:text="${cita.fechaFormateada}">Fecha</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Cliente:</span>
+                        <span class="info-value" th:text="${cita.emailCliente}">Email</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Servicios:</span>
+                        <div class="servicios-list">
+                                <span th:each="servicio : ${cita.servicios}"
+                                      class="servicio-badge"
+                                      th:text="${servicio}">Servicio</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Totales -->
+                <div class="total-section">
+                    <div class="total-row">
+                        <span>Subtotal:</span>
+                        <span th:text="${#numbers.formatCurrency(subtotal)}">$0</span>
+                    </div>
+                    <div class="total-row">
+                        <span>IVA (19%):</span>
+                        <span th:text="${#numbers.formatCurrency(iva)}">$0</span>
+                    </div>
+                    <div class="total-row final">
+                        <span>Total a Pagar:</span>
+                        <span th:text="${#numbers.formatCurrency(total)}">$0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario de Pago -->
+            <form th:action="@{'/facturacion/procesar/' + ${cita.idCita}}" method="post" id="paymentForm">
+                <div class="section">
+                    <h3 class="section-title">
+                        <i class="fas fa-money-check-alt"></i>
+                        Método de Pago
+                    </h3>
+
+                    <div class="payment-methods">
+                        <div class="payment-method">
+                            <input type="radio" id="tarjeta" name="metodoPago" value="tarjeta" checked>
+                            <label for="tarjeta">
+                                <i class="fas fa-credit-card"></i>
+                                <span>Tarjeta</span>
+                            </label>
+                        </div>
+                        <div class="payment-method">
+                            <input type="radio" id="pse" name="metodoPago" value="pse">
+                            <label for="pse">
+                                <i class="fas fa-university"></i>
+                                <span>PSE</span>
+                            </label>
+                        </div>
+                        <div class="payment-method">
+                            <input type="radio" id="efectivo" name="metodoPago" value="efectivo">
+                            <label for="efectivo">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <span>Efectivo</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Detalles de Tarjeta -->
+                    <div class="card-details active" id="cardDetails">
+                        <div class="form-group">
+                            <label for="numeroTarjeta">Número de Tarjeta</label>
+                            <input type="text"
+                                   id="numeroTarjeta"
+                                   name="numeroTarjeta"
+                                   class="form-control"
+                                   placeholder="1234 5678 9012 3456"
+                                   maxlength="19">
+                        </div>
+                        <div class="form-group">
+                            <label for="nombreTarjeta">Nombre en la Tarjeta</label>
+                            <input type="text"
+                                   id="nombreTarjeta"
+                                   class="form-control"
+                                   placeholder="Como aparece en la tarjeta">
+                        </div>
+                        <div class="card-row">
+                            <div class="form-group">
+                                <label for="vencimiento">Fecha de Vencimiento</label>
+                                <input type="text"
+                                       id="vencimiento"
+                                       class="form-control"
+                                       placeholder="MM/AA"
+                                       maxlength="5">
+                            </div>
+                            <div class="form-group">
+                                <label for="cvv">CVV</label>
+                                <input type="text"
+                                       id="cvv"
+                                       class="form-control"
+                                       placeholder="123"
+                                       maxlength="4">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="security-info">
+                    <i class="fas fa-lock"></i>
+                    <div>
+                        <strong>Pago 100% Seguro</strong>
+                        <p style="margin: 0; font-size: 0.9rem;">Tus datos están protegidos con encriptación SSL</p>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="btnPagar">
+                    <i class="fas fa-check-circle"></i>
+                    Confirmar y Pagar
+                </button>
+
+                <div class="actions">
+                    <a th:href="@{/citas/historial}" class="btn btn-secondary" style="flex: 1;">
+                        <i class="fas fa-arrow-left"></i>
+                        Volver al Historial
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Manejo de métodos de pago
+    const metodoPagoRadios = document.querySelectorAll('input[name="metodoPago"]');
+    const cardDetails = document.getElementById('cardDetails');
+    const numeroTarjetaInput = document.getElementById('numeroTarjeta');
+
+    metodoPagoRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'tarjeta') {
+                cardDetails.classList.add('active');
+            } else {
+                cardDetails.classList.remove('active');
+            }
+        });
+    });
+
+    // Formato de número de tarjeta
+    numeroTarjetaInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\s/g, '');
+        let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+        e.target.value = formattedValue;
+    });
+
+    // Formato de fecha de vencimiento
+    const vencimientoInput = document.getElementById('vencimiento');
+    vencimientoInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length >= 2) {
+            value = value.slice(0, 2) + '/' + value.slice(2, 4);
+        }
+        e.target.value = value;
+    });
+
+    // Solo números en CVV
+    const cvvInput = document.getElementById('cvv');
+    cvvInput.addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/\D/g, '');
+    });
+
+    // Validación al enviar
+    document.getElementById('paymentForm').addEventListener('submit', function(e) {
+        const metodoPago = document.querySelector('input[name="metodoPago"]:checked').value;
+
+        if (metodoPago === 'tarjeta') {
+            const numeroTarjeta = numeroTarjetaInput.value.replace(/\s/g, '');
+            const nombreTarjeta = document.getElementById('nombreTarjeta').value;
+            const vencimiento = document.getElementById('vencimiento').value;
+            const cvv = document.getElementById('cvv').value;
+
+            if (!numeroTarjeta || numeroTarjeta.length < 13) {
+                e.preventDefault();
+                alert('Por favor ingresa un número de tarjeta válido');
+                return;
+            }
+
+            if (!nombreTarjeta) {
+                e.preventDefault();
+                alert('Por favor ingresa el nombre del titular');
+                return;
+            }
+
+            if (!vencimiento || vencimiento.length < 5) {
+                e.preventDefault();
+                alert('Por favor ingresa una fecha de vencimiento válida');
+                return;
+            }
+
+            if (!cvv || cvv.length < 3) {
+                e.preventDefault();
+                alert('Por favor ingresa un CVV válido');
+                return;
+            }
+        }
+
+        // Deshabilitar botón para evitar doble clic
+        const btnPagar = document.getElementById('btnPagar');
+        btnPagar.disabled = true;
+        btnPagar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+    });
+</script>
+</body>
+</html>

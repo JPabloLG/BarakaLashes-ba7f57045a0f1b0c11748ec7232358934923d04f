@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Servicios - BarakaLashes</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            font-size: 1.1em;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .servicios-catalogo {
+            display: grid;
+            gap: 32px;
+            margin-bottom: 40px;
+        }
+
+        .servicio-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 0;
+            position: relative;
+            animation: fadeInUp 0.6s ease-out backwards;
+        }
+
+        .servicio-card:nth-child(1) { animation-delay: 0.1s; }
+        .servicio-card:nth-child(2) { animation-delay: 0.2s; }
+        .servicio-card:nth-child(3) { animation-delay: 0.3s; }
+        .servicio-card:nth-child(4) { animation-delay: 0.4s; }
+        .servicio-card:nth-child(5) { animation-delay: 0.5s; }
+
+        .servicio-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gradient-primary);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .servicio-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--primary-light);
+        }
+
+        .servicio-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .servicio-imagen {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .servicio-imagen img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.4s ease, filter 0.4s ease;
+            filter: brightness(0.85) saturate(0.9);
+        }
+
+        .servicio-card:hover .servicio-imagen img {
+            transform: scale(1.05);
+            filter: brightness(1) saturate(1.1);
+        }
+
+        .servicio-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            z-index: 2;
+            backdrop-filter: blur(10px);
+        }
+
+        .servicio-badge.premium {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #1e293b;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .servicio-content {
+            padding: 36px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .servicio-content h2 {
+            color: var(--text-primary);
+            font-size: 1.8em;
+            margin-bottom: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+        }
+
+        .servicio-content h2 i {
+            color: var(--primary-light);
+            font-size: 1em;
+        }
+
+        .servicio-descripcion {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            font-size: 1em;
+        }
+
+        .servicio-detalles {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-top: 8px;
+        }
+
+        .detalle-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: var(--text-secondary);
+            font-size: 0.95em;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .detalle-item:last-child {
+            border-bottom: none;
+        }
+
+        .detalle-item i {
+            color: var(--primary-light);
+            font-size: 1.2em;
+            width: 24px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .detalle-item strong {
+            color: var(--text-primary);
+            margin-right: 6px;
+        }
+
+        .catalogo-footer {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 36px;
+            margin-bottom: 32px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out 0.6s backwards;
+        }
+
+        .catalogo-footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+        }
+
+        .info-adicional h3 {
+            color: var(--text-primary);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.4em;
+            font-weight: 600;
+        }
+
+        .info-adicional h3 i {
+            color: var(--primary-light);
+        }
+
+        .info-adicional ul {
+            list-style: none;
+            padding: 0;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+        }
+
+        .info-adicional li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-secondary);
+            font-size: 0.95em;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .info-adicional li:hover {
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateX(5px);
+        }
+
+        .info-adicional li i {
+            color: #22c55e;
+            font-size: 1.2em;
+            flex-shrink: 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .servicio-card {
+                grid-template-columns: 1fr;
+            }
+
+            .servicio-imagen {
+                height: 280px;
+            }
+
+            .servicio-content {
+                padding: 28px;
+            }
+
+            .info-adicional ul {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .servicio-content {
+                padding: 24px;
+            }
+
+            .servicio-content h2 {
+                font-size: 1.5em;
+            }
+
+            .servicio-imagen {
+                height: 240px;
+            }
+
+            .catalogo-footer {
+                padding: 28px 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .subtitle {
+                font-size: 1em;
+            }
+
+            .servicio-card {
+                gap: 0;
+            }
+
+            .servicio-imagen {
+                height: 200px;
+            }
+
+            .servicio-content {
+                padding: 20px;
+            }
+
+            .servicio-content h2 {
+                font-size: 1.3em;
+            }
+
+            .servicio-badge {
+                top: 15px;
+                right: 15px;
+                padding: 6px 14px;
+                font-size: 0.8em;
+            }
+
+            .catalogo-footer {
+                padding: 24px 20px;
+            }
+
+            .info-adicional h3 {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1><i class="fas fa-sparkles"></i> Catálogo de Servicios</h1>
+    <p class="subtitle">Descubre todos nuestros servicios de belleza profesional</p>
+
+    <div class="servicios-catalogo">
+        <!-- Servicio: Pestañas Clásicas -->
+        <div class="servicio-card">
+            <div class="servicio-imagen">
+                <img th:src="@{/images/clasicas.jpg}" alt="Pestañas Clásicas"
+                     onerror="this.src='https://images.unsplash.com/photo-1548902378-2ec44c906391?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1074'">
+                <div class="servicio-badge">Popular</div>
+            </div>
+            <div class="servicio-content">
+                <h2><i class="fas fa-star"></i> Pestañas Clásicas</h2>
+                <p class="servicio-descripcion">
+                    Extensiones de pestañas pelo a pelo para un look natural y elegante.
+                    Cada extensión se aplica individualmente sobre tus pestañas naturales,
+                    logrando una apariencia suave y definida perfecta para el día a día.
+                </p>
+                <div class="servicio-detalles">
+                    <div class="detalle-item">
+                        <i class="fas fa-clock"></i>
+                        <span><strong>Duración:</strong> 2 - 2.5 horas</span>
+                    </div>
+                    <div class="detalle-item">
+                        <i class="fas fa-redo-alt"></i>
+                        <span><strong>Mantenimiento:</strong> Cada 2-3 semanas</span>
+                    </div>
+                    <div class="detalle-item">
+                        <i class="fas fa-palette"></i>
+                        <span><strong>Estilo:</strong> Natural y elegante</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Servicio: Pestañas Volumen -->
+        <div class="servicio-card">
+            <div class="servicio-imagen">
+                <img th:src="@{/images/volumen.jpg}" alt="Pestañas Volumen"
+                     onerror="this.src='https://plus.unsplash.com/premium_photo-1702902232929-d85dd78030df?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=687'">
+                <div class="servicio-badge premium">Premium</div>
+            </div>
+            <div class="servicio-content">
+                <h2><i class="fas fa-fire"></i> Pestañas Volumen</h2>
+                <p class="servicio-descripcion">
+                    Técnica avanzada que aplica múltiples extensiones ultrafinas en cada pestaña natural.
+                    Crea un efecto dramático y denso, perfecto para quienes buscan una mirada intensa
+                    y glamurosa sin comprometer la salud de tus pestañas.
+                </p>
+                <div class="servicio-detalles">
+                    <div class="detalle-item">
+                        <i class="fas fa-clock"></i>
+                        <span><strong>Duración:</strong> 3 - 3.5 horas</span>
+                    </div>
+                    <div class="detalle-item">
+                        <i class="fas fa-redo-alt"></i>
+                        <span><strong>Mantenimiento:</strong> Cada 2-4 semanas</span>
+                    </div>
+                    <div class="detalle-item">
+                        <i class="fas fa-palette"></i>
+                        <span><strong>Estilo:</strong> Dramático y denso</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Servicio: Diseño de Cejas -->
+        <div class="servicio-card">
+            <div class="servicio-imagen">
+                <img th:src="@{/images/cejas.jpg}" alt="Diseño de Cejas"
+                     onerror="this.src='https://images.unsplash.com/photo-1493422884938-abd42cfa0f29?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1140'">
+            </div>
+            <div class="servicio-content">
+                <h2><i class="fas fa-magic"></i> Diseño de Cejas</h2>
+                <p class="servicio-descripcion">
+                    Diseño profesional de cejas personalizado según la forma de tu rostro.
+                    Incluye depilación con hilo o pinza, diseño arquitectónico y perfilado para
+                    realzar tu mirada y armonizar tus facciones naturales.
+                </p>
+                <div class="servicio-detalles">
+                    <div class="detalle-item">
+                        <i class="fas fa-clock"></i>
+                        <span><strong>Duración:</strong> 30 - 45 minutos</span>
+                    </div>
+                    <div class="detalle-item">
+                        <i class="fas fa-redo-alt"></i>
+                        <span><strong>Mantenimiento:</strong> Cada 2-3 semanas</span>
+                    </div>
+                    <div class="detalle-item">
+                        <i class="fas fa-palette"></i>
+                        <span><strong>Estilo:</strong> Personalizado</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Servicio: Tinte de Pestañas -->
+        <div class="servicio-card">
+            <div class="servicio-imagen">
+                <img th:src="@{/images/tinte.jpg}" alt="Tinte de Pestañas"
+                     onerror="this.src='https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400&h=300&fit=crop&crop=center'">
+            </div>
+            <div class="servicio-content">
+                <h2><i class="fas fa-eye"></i> Tinte de Pestañas</h2>
+                <p class="servicio-descripcion">
+                    Coloración semipermanente que oscurece tus pestañas naturales desde la raíz.
+                    Ideal para quienes tienen pestañas claras o desean un look natural sin maquillaje.
+                    Productos hipoalergénicos y seguros para ojos sensibles.
+                </p>
+                <div class="servicio-detalles">
+                    <div class="detalle-item">
+                        <i class="fas fa-clock"></i>
+                        <span><strong>Duración:</strong> 20 - 30 minutos</span>
+                    </div>
+                    <div class="detalle-item">
+                        <i class="fas fa-redo-alt"></i>
+                        <span><strong>Duración efecto:</strong> 4-6 semanas</span>
+                    </div>
+                    <div class="detalle-item">
+                        <i class="fas fa-palette"></i>
+                        <span><strong>Colores:</strong> Negro, café, azul</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Servicio: Rizado Permanente -->
+        <div class="servicio-card">
+            <div class="servicio-imagen">
+                <img th:src="@{/images/permanente.jpg}" alt="Rizado Permanente"
+                     onerror="this.src='https://plus.unsplash.com/premium_photo-1661763916562-20e0314ba95f?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=687'">
+                <div class="servicio-badge">Tendencia</div>
+            </div>
+            <div class="servicio-content">
+                <h2><i class="fas fa-spa"></i> Rizado Permanente</h2>
+                <p class="servicio-descripcion">
+                    Lifting de pestañas que crea una curvatura natural y duradera.
+                    Levanta y riza tus pestañas desde la raíz, abriendo tu mirada sin necesidad
+                    de rizador. Combinable con tinte para un resultado espectacular.
+                </p>
+                <div class="servicio-detalles">
+                    <div class="detalle-item">
+                        <i class="fas fa-clock"></i>
+                        <span><strong>Duración:</strong> 45 - 60 minutos</span>
+                    </div>
+                    <div class="detalle-item">
+                        <i class="fas fa-redo-alt"></i>
+                        <span><strong>Duración efecto:</strong> 6-8 semanas</span>
+                    </div>
+                    <div class="detalle-item">
+                        <i class="fas fa-palette"></i>
+                        <span><strong>Resultado:</strong> Natural y duradero</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="catalogo-footer">
+        <div class="info-adicional">
+            <h3><i class="fas fa-info-circle"></i> Información Importante</h3>
+            <ul>
+                <li><i class="fas fa-check-circle"></i> Todos los servicios incluyen consulta personalizada</li>
+                <li><i class="fas fa-check-circle"></i> Productos profesionales de alta calidad</li>
+                <li><i class="fas fa-check-circle"></i> Técnicas certificadas y personal capacitado</li>
+                <li><i class="fas fa-check-circle"></i> Protocolos de higiene y bioseguridad</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <a th:href="@{/citas/nueva}" class="btn-primary">
+            <i class="fas fa-calendar-plus"></i> Agendar Cita
+        </a>
+        <a th:href="@{/citas/nueva}" class="btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>
+</body>
+</html>

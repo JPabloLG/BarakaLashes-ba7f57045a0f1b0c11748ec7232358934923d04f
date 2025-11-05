@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendar Cita - BarakaLashes</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+<div class="container">
+    <h1>Agendar Nueva Cita</h1>
+
+    <!-- Mostrar mensaje de error si existe -->
+    <div th:if="${param.error}" class="error-message">
+        Error al crear la cita. Por favor, intenta nuevamente.
+    </div>
+
+    <form th:action="@{/citas/nueva}" th:object="${cita}" method="post" enctype="multipart/form-data">
+        <div class="two-column-layout">
+            <!-- COLUMNA IZQUIERDA: Información del Cliente -->
+            <div class="left-column">
+                <div class="section">
+                    <h2><i class="fas fa-user"></i> Información del Cliente</h2>
+
+                    <div class="form-group">
+                        <label for="emailCliente">Email del Cliente:</label>
+                        <div class="input-icon-wrapper">
+                            <i class="fas fa-envelope input-icon"></i>
+                            <input type="email" id="emailCliente" th:field="*{emailCliente}"
+                                   placeholder="ejemplo@correo.com" required class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nombreCita">Motivo de la Cita:</label>
+                        <input type="text" id="nombreCita" th:field="*{nombreCita}"
+                               placeholder="Ej: Cita para extensiones de pestañas" required
+                               class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="descripcionCita">Detalles Adicionales:</label>
+                        <textarea id="descripcionCita" th:field="*{descripcionCita}" rows="5"
+                                  placeholder="Preferencias de estilo, alergias, comentarios especiales..."
+                                  class="form-control"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COLUMNA DERECHA: Servicios y Fecha -->
+            <div class="right-column">
+                <div class="section">
+                    <h2><i class="fas fa-calendar-alt"></i> Fecha y Servicios</h2>
+
+                    <div class="form-group">
+                        <label for="fechaCita">Fecha y Hora de la Cita:</label>
+                        <input type="datetime-local" id="fechaCita" th:field="*{fechaCita}"
+                               required class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <label style="margin-bottom: 0;">Servicios a Realizar:</label>
+                            <a th:href="@{/citas/catalogo}" class="btn-catalogo">
+                                <i class="fas fa-info-circle"></i> Ver Detalle de Servicios
+                            </a>
+                        </div>
+                        <div class="catalogo-grid">
+                            <!-- Servicio CLASICAS -->
+                            <label class="catalogo-item">
+                                <input type="checkbox" th:field="*{serviciosSeleccionados}" value="CLASICA">
+                                <img th:src="@{/images/clasicas.jpg}" alt="Pestañas Clásicas"
+                                     onerror="this.src='https://images.unsplash.com/photo-1548902378-2ec44c906391?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1074'">
+                                <span>Pestañas Clásicas</span>
+                            </label>
+
+                            <!-- Servicio VOLUMEN -->
+                            <label class="catalogo-item">
+                                <input type="checkbox" th:field="*{serviciosSeleccionados}" value="VOLUMEN">
+                                <img th:src="@{/images/volumen.jpg}" alt="Pestañas Volumen"
+                                     onerror="this.src='https://plus.unsplash.com/premium_photo-1702902232929-d85dd78030df?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=687'">
+                                <span>Pestañas Volumen</span>
+                            </label>
+
+                            <!-- Servicio CEJAS -->
+                            <label class="catalogo-item">
+                                <input type="checkbox" th:field="*{serviciosSeleccionados}" value="CEJAS">
+                                <img th:src="@{/images/cejas.jpg}" alt="Diseño de Cejas"
+                                     onerror="this.src='https://images.unsplash.com/photo-1493422884938-abd42cfa0f29?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1140'">
+                                <span>Diseño de Cejas</span>
+                            </label>
+
+                            <!-- Servicio TINTE -->
+                            <label class="catalogo-item">
+                                <input type="checkbox" th:field="*{serviciosSeleccionados}" value="TINTE">
+                                <img th:src="@{/images/tinte.jpg}" alt="Tinte de Pestañas"
+                                     onerror="this.src='https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=150&h=150&fit=crop&crop=center'">
+                                <span>Tinte de Pestañas</span>
+                            </label>
+
+                            <!-- Servicio PERMANENTE -->
+                            <label class="catalogo-item">
+                                <input type="checkbox" th:field="*{serviciosSeleccionados}" value="PERMANENTE">
+                                <img th:src="@{/images/permanente.jpg}" alt="Rizado Permanente"
+                                     onerror="this.src='https://plus.unsplash.com/premium_photo-1661763916562-20e0314ba95f?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=687'">
+                                <span>Rizado Permanente</span>
+                            </label>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">
+                <i class="fas fa-calendar-plus"></i> Agendar Cita
+            </button>
+            <a th:href="@{/historial}" class="btn-secondary">
+                <i class="fas fa-history"></i> Ver Mi Historial
+            </a>
+        </div>
+    </form>
+
+    <a th:href="@{/auth/login}" class="volver-inicio">
+        <i class="fas fa-arrow-left"></i>
+        Volver al Inicio
+    </a>
+</div>
+
+<style>
+    .btn-catalogo {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        background: rgba(99, 102, 241, 0.15);
+        border: 1px solid var(--border-focus);
+        border-radius: 10px;
+        color: var(--primary-light);
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+
+    .btn-catalogo:hover {
+        background: rgba(99, 102, 241, 0.25);
+        border-color: var(--primary-light);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        color: var(--text-primary);
+    }
+
+    .btn-catalogo i {
+        font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+        .form-group > div[style*="flex"] {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 12px;
+        }
+
+        .btn-catalogo {
+            width: 100%;
+            justify-content: center;
+            padding: 10px 16px;
+        }
+    }
+</style>
+</body>
+</html>

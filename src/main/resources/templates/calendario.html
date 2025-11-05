@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario de Citas - Baraka Lashes</title>
+
+    <!-- FullCalendar CSS -->
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+
+    <style>
+        .calendar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .filters-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: end;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .calendar-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+        }
+
+        .calendar-view {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+
+        /* Colores personalizados para estados de citas */
+        .fc-event-confirmada { background-color: #28a745; border-color: #28a745; }
+        .fc-event-pendiente { background-color: #ffc107; border-color: #ffc107; color: #000; }
+        .fc-event-cancelada { background-color: #dc3545; border-color: #dc3545; }
+        .fc-event-completada { background-color: #17a2b8; border-color: #17a2b8; }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="calendar-container">
+    <h1>📅 Calendario de Citas</h1>
+
+    <!-- Sección de Filtros -->
+    <div class="filters-section">
+        <h3>Filtros</h3>
+        <form id="filtersForm">
+            <div class="filter-group">
+                <div class="form-group">
+                    <label for="fechaInicio">Fecha Inicio:</label>
+                    <input type="date" id="fechaInicio" class="form-control" th:value="${#dates.format(fechaInicio, 'yyyy-MM-dd')}">
+                </div>
+
+                <div class="form-group">
+                    <label for="fechaFin">Fecha Fin:</label>
+                    <input type="date" id="fechaFin" class="form-control" th:value="${#dates.format(fechaFin, 'yyyy-MM-dd')}">
+                </div>
+
+                <div class="form-group">
+                    <label for="clienteFilter">Filtrar por Cliente:</label>
+                    <select id="clienteFilter" class="form-control">
+                        <option value="">Todos los clientes</option>
+                        <option th:each="cliente : ${clientes}"
+                                th:value="${cliente.idUsuario}"
+                                th:text="${cliente.nombre + ' (' + cliente.email + ')'}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="empleadoFilter">Filtrar por Empleado:</label>
+                    <select id="empleadoFilter" class="form-control">
+                        <option value="">Todos los empleados</option>
+                        <option th:each="empleado : ${empleados}"
+                                th:value="${empleado.idNegocio}"
+                                th:text="${empleado.nombre}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <button type="button" class="btn btn-primary" onclick="aplicarFiltros()">
+                        Aplicar Filtros
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="limpiarFiltros()">
+                        Limpiar
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Acciones del Calendario -->
+    <div class="calendar-actions">
+        <div class="view-toggle">
+            <button class="btn btn-outline-primary" onclick="cambiarVista('month')">Vista Mensual</button>
+            <button class="btn btn-outline-primary" onclick="cambiarVista('week')">Vista Semanal</button>
+            <button class="btn btn-outline-primary" onclick="cambiarVista('day')">Vista Diaria</button>
+        </div>
+
+        <div>
+            <button class="btn btn-success" onclick="location.href='/citas/nueva'">
+                ➕ Nueva Cita
+            </button>
+        </div>
+    </div>
+
+    <!-- Calendario -->
+    <div class="calendar-view">
+        <div id="calendar"></div>
+    </div>
+</div>
+
+<!-- FullCalendar JS -->
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/es.js'></script>
+
+<script>
+    let calendar;
+    let currentView = 'month';
+
+    document.addEventListener('DOMContentLoaded', function() {
+        inicializarCalendario();
+        cargarCitas();
+    });
+
+    function inicializarCalendario() {
+        const calendarEl = document.getElementById('calendar');
+
+        calendar = new FullCalendar.Calendar(calendarEl, {
+            locale: 'es',
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            events: '/citas/calendario',
+            eventClick: function(info) {
+                mostrarDetalleCita(info.event);
+            },
+            eventDidMount: function(info) {
+                // Añadir clases CSS según el estado
+                if (info.event.extendedProps.estado) {
+                    info.el.classList.add('fc-event-' + info.event.extendedProps.estado.toLowerCase());
+                }
+
+                // Tooltip con información
+                if (info.event.extendedProps.cliente) {
+                    info.el.title = info.event.title + ' - ' + info.event.extendedProps.cliente;
+                }
+            }
+        });
+
+        calendar.render();
+    }
+
+    function cargarCitas() {
+        const fechaInicio = document.getElementById('fechaInicio').value;
+        const fechaFin = document.getElementById('fechaFin').value;
+        const clienteId = document.getElementById('clienteFilter').value;
+        const empleadoId = document.getElementById('empleadoFilter').value;
+
+        // Construir URL con parámetros
+        let url = '/citas/calendario?fechaInicio=' + fechaInicio + '&fechaFin=' + fechaFin;
+        if (clienteId) url += '&idUsuario=' + clienteId;
+        if (empleadoId) url += '&idEmpleado=' + empleadoId;
+
+        // Recargar eventos del calendario
+        calendar.refetchEvents();
+    }
+
+    function aplicarFiltros() {
+        cargarCitas();
+    }
+
+    function limpiarFiltros() {
+        document.getElementById('fechaInicio').value = '';
+        document.getElementById('fechaFin').value = '';
+        document.getElementById('clienteFilter').value = '';
+        document.getElementById('empleadoFilter').value = '';
+        cargarCitas();
+    }
+
+    function cambiarVista(vista) {
+        calendar.changeView(vista + 'View' || vista);
+        currentView = vista;
+    }
+
+    function mostrarDetalleCita(evento) {
+        const citaId = evento.id;
+        window.location.href = '/citas/' + citaId;
+    }
+</script>
+</body>
+</html>

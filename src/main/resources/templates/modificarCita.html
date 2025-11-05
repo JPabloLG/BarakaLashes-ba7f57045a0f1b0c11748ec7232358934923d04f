@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modificar Cita - BarakaLashes</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+<div class="container">
+    <h1>Modificar Cita</h1>
+
+
+    <script th:src="@{/js/notifications.js}"></script>
+
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.has('error')) {
+                notifications.error(params.get('error') || 'Error al actualizar la cita', 5000);
+            } else if (params.has('success')) {
+                notifications.success('Cita actualizada correctamente', 5000);
+            }
+        });
+
+    </script>
+
+    <form th:action="@{'/historial/modificar/' + ${cita.idCita}}" method="post">
+        <div class="two-column-layout">
+
+            <!-- Columna Izquierda: Fecha -->
+            <div class="left-column">
+                <div class="section">
+                    <h2><i class="fas fa-calendar-alt"></i> Fecha de la Cita</h2>
+
+                    <div class="form-group">
+                        <label for="fechaCita">Nueva Fecha y Hora:</label>
+                        <div class="input-icon-wrapper">
+                            <i class="fas fa-clock input-icon"></i>
+                            <input type="datetime-local"
+                                   id="fechaCita"
+                                   name="fechaCita"
+                                   th:value="${#temporals.format(cita.fechaCita, 'yyyy-MM-dd''T''HH:mm')}"
+                                   required
+                                   class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna Derecha: Servicios (MÚLTIPLES) -->
+            <div class="right-column">
+                <div class="section">
+                    <h2><i class="fas fa-spa"></i> Servicios</h2>
+
+                    <div class="form-group">
+                        <label>Selecciona los servicios:</label>
+                        <div class="servicios-list">
+                            <div th:each="servicio : ${T(co.edu.uniquindio.BarakaLashes.modelo.Servicio).values()}"
+                                 class="checkbox-item">
+                                <input type="checkbox"
+                                       th:id="${'servicio_' + servicio.name()}"
+                                       name="serviciosSeleccionados"
+                                       th:value="${servicio}"
+                                       th:checked="${cita.serviciosSeleccionados != null && cita.serviciosSeleccionados.contains(servicio)}">
+                                <label th:for="${'servicio_' + servicio.name()}"
+                                       th:text="${servicio.name().replace('_', ' ')}">
+                                    Servicio
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AGREGADO: Campos adicionales que necesitas -->
+        <div class="section">
+            <div class="form-group">
+                <label for="nombreCita">Motivo de la cita:</label>
+                <input type="text"
+                       id="nombreCita"
+                       name="nombreCita"
+                       th:value="${cita.nombreCita}"
+                       required
+                       class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="descripcionCita">Descripción (opcional):</label>
+                <textarea id="descripcionCita"
+                          name="descripcionCita"
+                          class="form-control"
+                          rows="3"
+                          th:text="${cita.descripcionCita}"></textarea>
+            </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">
+                <i class="fas fa-save"></i>
+                Actualizar Cita
+            </button>
+
+            <a th:href="@{/historial}" class="btn-secondary">
+                <i class="fas fa-times"></i>
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .servicios-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .checkbox-item:hover {
+        border-color: #667eea;
+        background: #f8f9fa;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+        cursor: pointer;
+    }
+
+    .checkbox-item input[type="checkbox"]:checked + label {
+        color: #667eea;
+        font-weight: 600;
+    }
+</style>
+</body>
+</html>

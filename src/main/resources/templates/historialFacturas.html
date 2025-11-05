@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Facturas - BarakaLashes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .actions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .btn-nueva {
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .btn-nueva:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #dee2e6;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #495057;
+        }
+
+        .empty-state p {
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+        }
+
+        .facturas-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .factura-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+            display: grid;
+            gap: 20px;
+        }
+
+        .factura-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .factura-header-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .factura-number {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .factura-number h3 {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .factura-number p {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .factura-total {
+            text-align: right;
+        }
+
+        .total-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .total-amount {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .factura-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #555;
+            font-size: 0.95rem;
+        }
+
+        .info-item i {
+            color: #667eea;
+            width: 16px;
+            text-align: center;
+        }
+
+        .servicios-item {
+            grid-column: 1 / -1;
+        }
+
+        .servicios-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 5px;
+        }
+
+        .servicio-tag {
+            background: #e9ecef;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            color: #495057;
+        }
+
+        .factura-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding-top: 15px;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+        }
+
+        .stat-card i {
+            font-size: 2rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            .header {
+                padding: 20px;
+            }
+            .header h1 {
+                font-size: 2rem;
+            }
+            .content {
+                padding: 20px;
+            }
+            .factura-header-card {
+                flex-direction: column;
+            }
+            .factura-total {
+                text-align: left;
+            }
+            .factura-actions {
+                width: 100%;
+            }
+            .btn {
+                flex: 1;
+                justify-content: center;
+            }
+            .actions-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1><i class="fas fa-file-invoice-dollar"></i> Historial de Facturas</h1>
+        <p>Revisa todas tus transacciones y pagos realizados</p>
+    </div>
+
+    <div class="content">
+        <div th:if="${error}" class="alert alert-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span th:text="${error}"></span>
+        </div>
+
+        <div class="actions-header">
+            <h2>Mis Facturas</h2>
+            <div style="display: flex; gap: 10px;">
+                <a th:href="@{/citas/nueva}" class="btn-nueva">
+                    <i class="fas fa-calendar-plus"></i> Nueva Cita
+                </a>
+                <a th:href="@{/citas/historial}" class="btn-nueva" style="background: #007bff;">
+                    <i class="fas fa-calendar"></i> Mis Citas
+                </a>
+            </div>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="stats-grid" th:if="${not facturas?.isEmpty()}">
+            <div class="stat-card">
+                <i class="fas fa-file-invoice"></i>
+                <div class="stat-value" th:text="${#lists.size(facturas)}">0</div>
+                <div class="stat-label">Total Facturas</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-dollar-sign"></i>
+                <div class="stat-value" th:text="${#numbers.formatCurrency(#aggregates.sum(facturas.![total]))}">$0</div>
+                <div class="stat-label">Total Pagado</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-calendar-check"></i>
+                <div class="stat-value" th:text="${facturas[0]?.fechaFormateada ?: 'N/A'}">-</div>
+                <div class="stat-label">Última Factura</div>
+            </div>
+        </div>
+
+        <!-- Lista de Facturas -->
+        <div class="facturas-grid" th:if="${not facturas?.isEmpty()}">
+            <div th:each="factura : ${facturas}" class="factura-card">
+                <div class="factura-header-card">
+                    <div class="factura-number">
+                        <h3>
+                            <i class="fas fa-receipt"></i>
+                            Factura No. <span th:text="${factura.idFactura}">0000</span>
+                        </h3>
+                        <p th:text="${factura.fechaFormateada}">Fecha</p>
+                    </div>
+                    <div class="factura-total">
+                        <div class="total-label">Total Pagado</div>
+                        <div class="total-amount" th:text="${factura.totalFormateado}">$0.00</div>
+                    </div>
+                </div>
+
+                <div class="factura-info">
+                    <div class="info-item">
+                        <i class="fas fa-user"></i>
+                        <span th:text="${factura.nombreUsuario}">Cliente</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-envelope"></i>
+                        <span th:text="${factura.emailUsuario}">Email</span>
+                    </div>
+                    <div class="info-item servicios-item">
+                        <i class="fas fa-list"></i>
+                        <div>
+                            <strong>Servicios:</strong>
+                            <div class="servicios-tags">
+                                    <span th:each="servicio : ${factura.servicios}"
+                                          class="servicio-tag"
+                                          th:text="${servicio}">Servicio</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="factura-actions">
+                    <a th:href="@{'/facturacion/factura/' + ${factura.idFactura}}"
+                       class="btn btn-primary">
+                        <i class="fas fa-eye"></i> Ver Factura
+                    </a>
+                    <a th:href="@{'/facturacion/factura/' + ${factura.idFactura}}"
+                       onclick="window.open(this.href); window.print(); return false;"
+                       class="btn btn-secondary">
+                        <i class="fas fa-print"></i> Imprimir
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estado Vacío -->
+        <div th:if="${facturas?.isEmpty()}" class="empty-state">
+            <i class="fas fa-file-invoice"></i>
+            <h3>No tienes facturas aún</h3>
+            <p>Cuando realices un pago, tus facturas aparecerán aquí</p>
+            <a th:href="@{/citas/nueva}" class="btn-nueva" style="margin-top: 15px;">
+                <i class="fas fa-calendar-plus"></i> Agendar Mi Primera Cita
+            </a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
